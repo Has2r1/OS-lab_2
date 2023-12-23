@@ -54,6 +54,15 @@ int main() {
     fd_set read_fds;
     FD_ZERO(&read_fds);
 
+    sigset_t blockedMask, mask;
+    sigemptyset(&blockedMask);
+    sigemptyset(&mask);
+    sigaddset(&blockedMask, SIGHUP)
+    sigprocmask(SIG_BLOCK, &blockedMask, &mask)
+    struct timespec timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_nsec = 0;
+
     while (1) {
         if (got_sighup) {
             printf("Received SIGHUP signal. Closing the server.\n");
@@ -64,11 +73,6 @@ int main() {
         }
 
         FD_SET(server_socket, &read_fds);
-
-        sigset_t mask;
-        struct timespec timeout;
-        timeout.tv_sec = 1;
-        timeout.tv_nsec = 0;
 
         int result = pselect(server_socket + 1, &read_fds, NULL, NULL, &timeout, &mask);
 
